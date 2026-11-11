@@ -15,7 +15,7 @@ public class ConfigLoader {
             String[] dates;
             List<String> credentials = new ArrayList<>();
 
-            File configTxt = new File("src/config.txt");
+            File configTxt = new File("config.txt");
 
             FileReader reader = new FileReader(configTxt);
 
