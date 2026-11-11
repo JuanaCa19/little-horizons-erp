@@ -40,3 +40,4 @@ build/
 .DS_Store
 
 config.txt
+error_log.txt
