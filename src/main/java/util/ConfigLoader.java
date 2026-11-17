@@ -9,31 +9,21 @@ import java.util.List;
 
 public class ConfigLoader {
 
-    public static List<String> getCredentialsDB(){
+    public static List<String> getCredentialsDB() {
+        File configTxt = new File("config.txt");
+        List<String> credentials = new ArrayList<>();
 
-        try{
-            String[] dates;
-            List<String> credentials = new ArrayList<>();
-
-            File configTxt = new File("config.txt");
-
-            FileReader reader = new FileReader(configTxt);
-
-            BufferedReader buffer = new BufferedReader(reader);
-
+        try (BufferedReader buffer = new BufferedReader(new FileReader(configTxt))) {
             String line;
-
-            while((line = buffer.readLine()) != null){
-                dates = line.split("=");
-                credentials.add(dates[1]);
+            while ((line = buffer.readLine()) != null) {
+                String[] parts = line.split("=", 2);
+                if (parts.length == 2) {
+                    credentials.add(parts[1].trim());
+                }
             }
-
-            buffer.close();
-            reader.close();
-
             return credentials;
         } catch (IOException e) {
-            System.err.println("Error al leer archivo config.txt : " + e.getMessage());
+            System.err.println("Error al leer archivo config.txt: " + e.getMessage());
         }
         return null;
     }
