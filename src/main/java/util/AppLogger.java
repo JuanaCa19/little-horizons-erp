@@ -3,6 +3,8 @@ package util;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -15,6 +17,11 @@ public class AppLogger {
             String message = buildError(messageEntry, throwable);
             bufferedWriter.write(message);
             bufferedWriter.newLine();
+            if (throwable != null) {
+                StringWriter trace = new StringWriter();
+                throwable.printStackTrace(new PrintWriter(trace));
+                bufferedWriter.write(trace.toString());
+            }
         } catch (IOException e) {
             System.err.println("Error al intentar escribir en el archivo de log: " + e.getMessage());
         }
