@@ -8,7 +8,7 @@ El proyecto centraliza la información académica, administrativa y financiera d
 
 Su propósito es reducir la dispersión de registros, los errores de matrícula y calificaciones, la falta de seguimiento de pagos y la pérdida de trazabilidad de los préstamos.
 
-La aplicación cuenta con siete módulos y consultas estadísticas en consola. **La generación de facturas y la exportación de documentos PDF quedaron excluidas del alcance por indicación del instructor.** No son funcionalidades pendientes de implementación.
+La aplicación cuenta con siete módulos y consultas estadísticas en consola. Al confirmar un pago, muestra un comprobante en texto plano en la misma consola, con recibos, detalle de cargos y totales.
 
 ## 2. Autor
 
@@ -87,7 +87,7 @@ Los datos corresponden al año académico **2026**, con referencia **2026-11-16*
 | `clubes` | 30 |
 | `recursos` | 50 |
 
-Las tablas de facturas se conservan vacías por compatibilidad; la facturación y los PDF están excluidos del alcance.
+Las tablas de facturas se conservan vacías por compatibilidad con el esquema suministrado. El comprobante de consola se presenta con los datos del pago confirmado.
 
 El esquema incluye, entre otras, las siguientes tablas:
 
@@ -333,7 +333,7 @@ Se utilizan lambdas y Stream API, por ejemplo en `Student.getFullName()`, filtro
 - Recibos únicos e historial por estudiante y acudiente.
 - Consulta de morosos con más de un mes de atraso.
 
-Los montos utilizan `BigDecimal`. Los pagos y el estado de sus cargos se guardan en una misma transacción. La facturación y los PDF están fuera del alcance acordado.
+Los montos utilizan `BigDecimal`. Los pagos y el estado de sus cargos se guardan en una misma transacción. Tras confirmar el pago, la consola muestra el emisor, los datos del acudiente, la fecha, el método, el detalle por cargo y los totales de base e IVA. El historial conserva los recibos de cada pago.
 
 ### 10.6. Gestión de recursos
 
@@ -380,7 +380,7 @@ La aplicación distingue:
 
 Las vistas muestran mensajes de validación y error y permiten continuar la navegación. Los errores inesperados y los fallos SQL registrados por los DAO se envían a `AppLogger`.
 
-El archivo **`error_log.txt`** se crea o amplía en el directorio de trabajo, con fecha, hora, contexto y excepción. Actualmente el logger guarda un resumen del error; no almacena la traza completa de llamadas. El archivo está excluido mediante `.gitignore`.
+El archivo **`error_log.txt`** se crea o amplía en el directorio de trabajo, con fecha, hora, contexto y excepción. El logger incluye la traza de llamadas cuando recibe una excepción. El archivo está excluido mediante `.gitignore`.
 
 Los DAO emplean `PreparedStatement` y `try-with-resources`. Las operaciones compuestas utilizan transacciones; ante un fallo, sus cambios se revierten mediante `rollback`.
 
@@ -474,7 +474,7 @@ Antes de entregar, comprueba también el registro completo de estudiantes y los 
 - No se gestionan abonos parciales sobre un mismo cargo; el pago salda cargos completos.
 - No se han definido ponderaciones distintas para materias o períodos: los promedios utilizan las notas disponibles según las reglas descritas.
 - Las pruebas se automatizan con `scripts/test.ps1`; todavía no están integradas al ciclo de Maven ni a un flujo de integración continua.
-- El logger actual guarda un resumen y no la traza completa de los errores.
+
 
 ## 15. Futuras mejoras
 
