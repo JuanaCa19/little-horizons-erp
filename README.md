@@ -217,10 +217,7 @@ little-horizons-erp/
 ├── scripts/test.ps1
 ├── docs/
 │   ├── database.sql
-│   ├── verify_database.sql
-│   ├── financial-module.md
-│   ├── resource-module.md
-│   └── reports-module.md
+│   └── verify_database.sql
 └── src/
     ├── main/java/
     │   ├── Main.java
@@ -370,7 +367,6 @@ Todas estas consultas son de solo lectura y se muestran en consola.
 - Las consultas de cartera y préstamos muestran las obligaciones actualmente abiertas; no reconstruyen balances históricos completos.
 - Estudiantes, recursos y actividades se gestionan mediante estados. Los retiros y devoluciones conservan su historial.
 
-Documentación complementaria: [finanzas](docs/financial-module.md), [recursos](docs/resource-module.md) y [reportes](docs/reports-module.md).
 
 ## 12. Manejo de errores y logs
 
