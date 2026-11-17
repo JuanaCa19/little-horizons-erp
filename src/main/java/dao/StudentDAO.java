@@ -1,14 +1,15 @@
 package dao;
 
-import model.DocumentType;
 import model.Student;
-import model.StudentStatus;
+import model.enums.DocumentType;
+import model.enums.StudentStatus;
 
 import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 
 public interface StudentDAO {
+
     int create(Student student);
 
     int create(Student student, Connection connection);

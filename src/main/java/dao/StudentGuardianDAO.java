@@ -1,22 +1,24 @@
 package dao;
 
-
-import model.Student;
 import model.StudentGuardian;
+
 import java.sql.Connection;
 import java.util.List;
-
+import java.util.Optional;
 
 public interface StudentGuardianDAO {
-    void link(StudentGuardian studentGuardian);
 
-    void link(StudentGuardian studentGuardian, Connection connection);
+    void link(StudentGuardian relation);
+
+    void link(StudentGuardian relation, Connection connection);
 
     List<StudentGuardian> findByStudentId(Integer studentId);
 
-    List<Student> findByGuardianId(Integer guardianId);
+    List<StudentGuardian> findByGuardianId(Integer guardianId);
 
-    List<StudentGuardian> findFinancialResponsible(Integer studentId);
+    List<StudentGuardian> findFinancialResponsibles(Integer studentId);
+
+    Optional<StudentGuardian> findByIds(Integer studentId, Integer guardianId);
 
     void changePrimary(Integer studentId, Integer guardianId);
 
