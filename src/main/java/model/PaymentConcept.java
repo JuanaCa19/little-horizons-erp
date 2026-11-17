@@ -1,0 +1,42 @@
+package model;
+
+import java.time.LocalDate;
+import java.math.BigDecimal;
+import model.enums.*;
+
+public class PaymentConcept {
+    private Integer id;
+    private String code;
+    private String name;
+    private String description;
+    private BigDecimal baseAmount;
+    private BigDecimal vatRate;
+    private boolean recurring;
+    private boolean active;
+
+    public PaymentConcept() { }
+
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id=id; }
+
+    public String getCode() { return code; }
+    public void setCode(String code) { this.code=code; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name=name; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description=description; }
+
+    public BigDecimal getBaseAmount() { return baseAmount; }
+    public void setBaseAmount(BigDecimal baseAmount) { this.baseAmount=baseAmount; }
+
+    public BigDecimal getVatRate() { return vatRate; }
+    public void setVatRate(BigDecimal vatRate) { this.vatRate=vatRate; }
+
+    public boolean isRecurring() { return recurring; }
+    public void setRecurring(boolean recurring) { this.recurring=recurring; }
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active=active; }
+}
