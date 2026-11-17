@@ -128,7 +128,7 @@ public class FinanceService {
                 payment.setPeriod(charge.getPeriod());payment.setNotes("Cargo "+charge.getId()+" mes "+charge.getMonth());
                 payment.setId(finance.createPayment(payment,c));finance.settleCharge(charge.getId(),payment.getId(),c);paid.add(payment);
             }
-            return new PaymentOutcome(paid);
+            return new PaymentOutcome(paid, quoted);
         });
     }
     public List<Payment> findPaymentsByStudent(Integer id) { ServiceValidation.id(id);return transactions.execute(c -> finance.findPaymentsByStudent(id,c)); }

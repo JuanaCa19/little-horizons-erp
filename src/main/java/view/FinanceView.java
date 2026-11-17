@@ -85,16 +85,42 @@ public class FinanceView {
                 action(() -> showPayments(controller.findPaymentsByStudent(student()))),action(() -> showPayments(controller.findPaymentsByGuardian(guardian()))));
     }
     private void pay() {
-        int guardianId=guardian();int count=readInt("Cuantos cargos desea pagar: ",1,100);List<Integer> ids=new ArrayList<>();
+        Guardian payer = guardians.getById(readId("ID del acudiente"));
+        field("Acudiente", payer.getFullName());
+        int guardianId = payer.getId();
+        int count=readInt("Cuantos cargos desea pagar: ",1,100);List<Integer> ids=new ArrayList<>();
         for(int i=0;i<count;i++) ids.add(readId("ID del cargo "+(i+1)));
         List<ChargeQuote> quote=controller.quoteCharges(ids,guardianId);
         printTable(List.of("Cargo ID","Estudiante","Concepto","Base COP","IVA COP","Total COP"),quote.stream().map(value -> row(value.charge().getId(),value.studentName(),value.conceptName(),value.charge().getAmount(),value.vat(),value.total())).toList());
         field("Total a pagar COP",quote.stream().map(ChargeQuote::total).reduce(BigDecimal.ZERO,BigDecimal::add));
         PaymentMethod method=choose("Metodo de pago",PaymentMethod.values(),PaymentMethod::getDbValue,null);LocalDate date=readDate("Fecha de pago (dd/MM/yyyy): ");
         if(readYesNo("Confirmar pago")) {
-            PaymentOutcome result=controller.payCharges(ids,guardianId,method,date);printSuccess("Pago confirmado.");field("Total COP",result.total());showPayments(result.payments());
+            PaymentOutcome result = controller.payCharges(ids, guardianId, method, date);
+            printSuccess("Pago confirmado.");
+            showReceipt(payer, date, method, result);
         } else printInfo("No se registro el pago.");
     }
+    private void showReceipt(Guardian payer, LocalDate date, PaymentMethod method, PaymentOutcome result) {
+        printHeader("Comprobante de pago");
+        field("Emisor", "Colegio Internacional Little Horizons S.A.S.");
+        field("Acudiente", payer.getFullName());
+        field("Documento", payer.getDocumentNumber());
+        field("Direccion", payer.getAddress());
+        field("Fecha de pago", date);
+        field("Metodo de pago", method.getDbValue());
+        List<List<String>> lines = new ArrayList<>();
+        for (int index = 0; index < result.charges().size(); index++) {
+            ChargeQuote charge = result.charges().get(index);
+            Payment payment = result.payments().get(index);
+            lines.add(row(payment.getReceiptNumber(), charge.studentName(), charge.conceptName(), 1,
+                    charge.charge().getAmount(), charge.vat(), payment.getAmount()));
+        }
+        printTable(List.of("Recibo", "Estudiante", "Concepto", "Cantidad", "Base COP", "IVA COP", "Total COP"), lines);
+        field("Subtotal COP", result.subtotal());
+        field("IVA COP", result.vat());
+        field("Total pagado COP", result.total());
+    }
+
     private void showPayments(List<Payment> values) {
         printTable(List.of("ID","Estudiante ID","Acudiente ID","Concepto","Total COP","Fecha","Metodo","Recibo"),values.stream().map(value -> row(value.getId(),value.getStudentId(),value.getGuardianId(),controller.getConcept(value.getConceptId()).getName(),value.getAmount(),value.getDate(),value.getMethod().getDbValue(),value.getReceiptNumber())).toList());
     }
