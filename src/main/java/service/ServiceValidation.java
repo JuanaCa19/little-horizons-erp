@@ -31,6 +31,11 @@ final class ServiceValidation {
         return value.trim();
     }
 
+    private static void maxLength(String value, int limit, String field) {
+        require(value == null || value.codePointCount(0, value.length()) <= limit,
+                field + " admite hasta " + limit + " caracteres.");
+    }
+
     static void email(String value) {
         require(value == null || value.isBlank() || EMAIL.matcher(value).matches(),
                 "El correo electronico no es valido.");
@@ -44,6 +49,14 @@ final class ServiceValidation {
         text(student.getFirstName(), "El primer nombre");
         text(student.getFirstLastName(), "El primer apellido");
         text(student.getAddress(), "La direccion");
+        maxLength(student.getFirstName(), 100, "El primer nombre");
+        maxLength(student.getMiddleName(), 100, "El segundo nombre");
+        maxLength(student.getFirstLastName(), 100, "El primer apellido");
+        maxLength(student.getSecondLastName(), 100, "El segundo apellido");
+        maxLength(student.getAddress(), 255, "La direccion");
+        maxLength(student.getPhone(), 20, "El telefono");
+        maxLength(student.getEmail(), 100, "El correo electronico");
+        maxLength(student.getBloodType(), 5, "El tipo de sangre");
         require(student.getBirthDate() != null && student.getBirthDate().isBefore(LocalDate.now()),
                 "La fecha de nacimiento debe ser anterior a hoy.");
         require(student.getAdmissionDate() != null && !student.getAdmissionDate().isBefore(student.getBirthDate()),
@@ -62,12 +75,22 @@ final class ServiceValidation {
         text(guardian.getFirstLastName(), "El primer apellido");
         text(guardian.getPrimaryPhone(), "El telefono principal");
         text(guardian.getAddress(), "La direccion");
+        maxLength(guardian.getFirstName(), 100, "El primer nombre");
+        maxLength(guardian.getMiddleName(), 100, "El segundo nombre");
+        maxLength(guardian.getFirstLastName(), 100, "El primer apellido");
+        maxLength(guardian.getSecondLastName(), 100, "El segundo apellido");
+        maxLength(guardian.getPrimaryPhone(), 20, "El telefono principal");
+        maxLength(guardian.getSecondaryPhone(), 20, "El telefono secundario");
+        maxLength(guardian.getAddress(), 255, "La direccion");
+        maxLength(guardian.getEmail(), 100, "El correo electronico");
+        maxLength(guardian.getOccupation(), 100, "La ocupacion");
         email(guardian.getEmail());
     }
 
     static void relation(StudentGuardian relation) {
         require(relation != null, "El vinculo con el acudiente es obligatorio.");
         text(relation.getRelationShip(), "El parentesco");
+        maxLength(relation.getRelationShip(), 50, "El parentesco");
     }
 
     static void enrollment(Enrollment enrollment) {

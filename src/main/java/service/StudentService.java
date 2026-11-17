@@ -154,6 +154,11 @@ public class StudentService {
                 .ifPresent(other -> require(Objects.equals(other.getId(), student.getId()),
                         "El documento pertenece a otro estudiante."));
 
+        if (!student.getAdmissionDate().equals(existing.getAdmissionDate())) {
+            require(enrollmentDAO.findByStudentId(student.getId()).stream()
+                            .noneMatch(value -> value.getEnrollmentDate().isBefore(student.getAdmissionDate())),
+                    "La fecha de ingreso no puede ser posterior a una matricula existente.");
+        }
         studentDAO.update(student);
     }
 
