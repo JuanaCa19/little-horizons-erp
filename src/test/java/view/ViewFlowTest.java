@@ -56,11 +56,11 @@ public class ViewFlowTest {
                 new EnrollmentView(new EnrollmentController(), students, new GradeView(grades)),
                 new StudentGuardianView(new StudentGuardianController(), students, guardians));
         String input = switch (scenario) {
-            case "navigation" -> "texto\n9\n1\n8\n7\n11\n8\n";
-            case "cancel-registration" -> "1\ncancelar\n11\n";
-            case "cancel-update" -> "6\n1\nno\n\nChanged\n\n\n\ncancelar\n11\n";
-            case "validation-error", "database-error" -> "2\n\n11\n";
-            case "list" -> "2\n\n11\n";
+            case "navigation" -> "texto\n9\n1\n8\n7\n12\n8\n";
+            case "cancel-registration" -> "1\ncancelar\n12\n";
+            case "cancel-update" -> "6\n1\nno\n\nChanged\n\n\n\ncancelar\n12\n";
+            case "validation-error", "database-error" -> "2\n\n12\n";
+            case "list" -> "2\n\n12\n";
             case "register-existing", "register-new", "decline-registration" -> registrationInput(scenario);
             default -> throw new IllegalArgumentException(scenario);
         };
@@ -97,7 +97,7 @@ public class ViewFlowTest {
             lines.addAll(List.of("no", "3", "987", "Ana", "", "Ardila", "", "3101234567", "", "", "Carrera 27", ""));
         } else lines.addAll(List.of("si", "2"));
         lines.addAll(List.of("Madre", "si", "si", "1", "2026", "16/01/2026", "",
-                scenario.equals("decline-registration") ? "no" : "si", "", "11"));
+                scenario.equals("decline-registration") ? "no" : "si", "", "12"));
         return String.join("\n", lines) + "\n";
     }
 

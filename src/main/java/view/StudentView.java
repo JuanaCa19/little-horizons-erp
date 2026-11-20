@@ -34,6 +34,7 @@ public class StudentView {
     private final GuardianView guardians;
     private final EnrollmentView enrollments;
     private final StudentGuardianView relations;
+    private final StudentGradeSearchView gradeSearch = new StudentGradeSearchView();
 
     public StudentView() {
         this(new StudentController(), new GuardianView(), new EnrollmentView(), new StudentGuardianView());
@@ -59,7 +60,8 @@ public class StudentView {
                         "Cambiar estado",
                         "Gestionar acudientes",
                         "Gestionar vinculos con acudientes",
-                        "Gestionar matriculas"
+                        "Gestionar matriculas",
+                        "Buscar por grado académico"
                 },
                 action(this::register),
                 action(() -> showList(controller.findAll())),
@@ -70,7 +72,8 @@ public class StudentView {
                 action(this::changeStatus),
                 guardians::start,
                 relations::start,
-                enrollments::start
+                enrollments::start,
+                action(gradeSearch::search)
         );
     }
 
