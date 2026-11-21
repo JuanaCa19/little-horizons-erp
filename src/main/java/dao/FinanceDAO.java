@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.*;
 import model.*;
+import model.report.OverdueChargeRow;
 
 public interface FinanceDAO {
     int createPaymentConcept(PaymentConcept value,Connection c);
@@ -28,6 +29,7 @@ public interface FinanceDAO {
     Optional<StudentCharge> findChargeByKey(Integer studentId,Integer conceptId,int year,int month,Connection c);
     List<StudentCharge> findCharges(Integer studentId,Connection c);
     List<StudentCharge> findOverdueCharges(LocalDate cutoff,Connection c);
+    List<OverdueChargeRow> findOverduePortfolio(LocalDate cutoff, LocalDate overdueBefore, Connection c);
     void settleCharge(Integer chargeId,Integer paymentId,Connection c);
     void cancelCharge(Integer chargeId,Connection c);
     List<Payment> findPaymentsByStudent(Integer studentId,Connection c);

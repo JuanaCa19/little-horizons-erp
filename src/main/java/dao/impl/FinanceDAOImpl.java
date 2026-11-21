@@ -5,6 +5,7 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
 import model.*;
+import model.report.OverdueChargeRow;
 import model.enums.*;
 
 public class FinanceDAOImpl implements FinanceDAO {
@@ -188,6 +189,39 @@ public class FinanceDAOImpl implements FinanceDAO {
     @Override public List<StudentCharge> findOverdueCharges(LocalDate cutoff,Connection c) {
         return JdbcSupport.query(c,"SELECT * FROM cargos_estudiante WHERE estado='Pendiente' AND monto_cargo>0 AND fecha_vencimiento<? ORDER BY fecha_vencimiento,id_estudiante",ps -> ps.setObject(1,cutoff,Types.DATE),this::mapStudentCharge);
     }
+    @Override
+    public List<OverdueChargeRow> findOverduePortfolio(
+            LocalDate cutoff, LocalDate overdueBefore, Connection c) {
+        String sql = """
+                SELECT ce.id_cargo, e.id_estudiante,
+                       CONCAT_WS(' ', e.primer_nombre, e.segundo_nombre, e.primer_apellido, e.segundo_apellido) AS nombre,
+                       g.id_grado, COALESCE(g.nombre_grado, 'Sin matrícula para el año del cargo') AS grado,
+                       ce.anio_academico, cp.nombre_concepto AS concepto, ce.fecha_vencimiento, ce.monto_cargo
+                FROM cargos_estudiante ce
+                JOIN estudiantes e ON e.id_estudiante = ce.id_estudiante
+                JOIN conceptos_pago cp ON cp.id_concepto = ce.id_concepto
+                LEFT JOIN matriculas m ON m.id_estudiante = ce.id_estudiante
+                                      AND m.anio_academico = ce.anio_academico
+                LEFT JOIN grados g ON g.id_grado = m.id_grado
+                LEFT JOIN pagos p ON p.id_pago = ce.id_pago
+                WHERE ce.estado <> 'Anulado' AND ce.monto_cargo > 0
+                  AND ce.fecha_vencimiento < ?
+                  AND (ce.fecha_creacion IS NULL OR ce.fecha_creacion < ?)
+                  AND (p.id_pago IS NULL OR p.fecha_pago > ?)
+                ORDER BY g.id_grado IS NULL, g.nivel_numerico, e.primer_apellido, e.primer_nombre,
+                         e.id_estudiante, ce.fecha_vencimiento, ce.id_cargo
+                """;
+        return JdbcSupport.query(c, sql, statement -> {
+            statement.setObject(1, overdueBefore, Types.DATE);
+            statement.setObject(2, cutoff.plusDays(1), Types.DATE);
+            statement.setObject(3, cutoff, Types.DATE);
+        }, row -> new OverdueChargeRow(
+                row.getInt("id_cargo"), row.getInt("id_estudiante"), row.getString("nombre"),
+                row.getObject("id_grado", Integer.class), row.getString("grado"), row.getInt("anio_academico"),
+                row.getString("concepto"), row.getObject("fecha_vencimiento", LocalDate.class),
+                row.getBigDecimal("monto_cargo")));
+    }
+
     @Override public void settleCharge(Integer chargeId,Integer paymentId,Connection c) {
         JdbcSupport.update(c,"UPDATE cargos_estudiante SET estado='Pagado',id_pago=? WHERE id_cargo=? AND estado='Pendiente'",ps -> { ps.setInt(1,paymentId);ps.setInt(2,chargeId); });
     }

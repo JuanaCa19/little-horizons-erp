@@ -19,9 +19,14 @@ public class FinanceView {
         this.controller=Objects.requireNonNull(controller);this.students=Objects.requireNonNull(students);this.guardians=Objects.requireNonNull(guardians);
     }
     public void start() {
-        menu("Gestion Financiera","Volver al menu principal",new String[]{"Conceptos de pago","Precios personalizados y becas","Cargos pendientes y mora","Pagos e historial"},
-                this::conceptMenu,this::priceMenu,this::chargeMenu,this::paymentMenu);
+        menu("Gestion Financiera","Volver al menu principal",new String[]{"Conceptos de pago","Precios personalizados y becas","Cargos pendientes y mora","Pagos e historial","Exportar cartera vencida (TXT)"},
+                this::conceptMenu,this::priceMenu,this::chargeMenu,this::paymentMenu,action(this::exportOverduePortfolio));
     }
+    private void exportOverduePortfolio() {
+        LocalDate cutoff = readDate("Fecha de corte (dd/MM/yyyy): ");
+        printSuccess("Reporte guardado en " + controller.exportOverduePortfolio(cutoff));
+    }
+
     private int student() { Student value=students.getById(readId("ID del estudiante"));field("Estudiante",value.getFullName());return value.getId(); }
     private int guardian() { Guardian value=guardians.getById(readId("ID del acudiente"));field("Acudiente",value.getFullName());return value.getId(); }
     private int concept() { PaymentConcept value=controller.getConcept(readId("ID del concepto"));field("Concepto",value.getName());return value.getId(); }

@@ -4,6 +4,8 @@ import dao.*;
 import dao.impl.*;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.*;
 import model.*;
@@ -30,7 +32,7 @@ public class FinanceModuleIntegrationTest {
     }
     public static void main(String[] args) throws Exception {
         LocalDate today=LocalDate.now();int year=today.getYear();
-        try(TemporaryDatabase db=new TemporaryDatabase("estudiantes","acudientes","estudiante_acudiente","conceptos_pago","precios_estudiante","cargos_estudiante","pagos")) {
+        try(TemporaryDatabase db=new TemporaryDatabase("estudiantes","acudientes","estudiante_acudiente","conceptos_pago","precios_estudiante","cargos_estudiante","pagos","grados","matriculas")) {
             db.execute("INSERT INTO estudiantes(id_estudiante,tipo_documento,numero_documento,primer_nombre,primer_apellido,fecha_nacimiento,genero,fecha_ingreso,estado) VALUES(1,'TI','111','Ana','Perez','2010-01-01','F','2020-01-01','Activo'),(2,'TI','222','Luis','Ruiz','2010-01-01','M','2020-01-01','Activo')");
             db.execute("INSERT INTO acudientes(id_acudiente,tipo_documento,numero_documento,primer_nombre,primer_apellido,telefono_principal,direccion) VALUES(1,'CC','100','Maria','Gil','3100000000','Bucaramanga'),(2,'CC','200','Jose','Diaz','3100000001','Bucaramanga')");
             db.execute("INSERT INTO estudiante_acudiente(id_estudiante,id_acudiente,parentesco,es_principal,es_responsable_financiero) VALUES(1,1,'Madre',1,1),(2,1,'Madre',1,1),(1,2,'Padre',0,0)");
@@ -86,6 +88,37 @@ public class FinanceModuleIntegrationTest {
             check(service.findOverdueCharges(today).isEmpty(),"Exactly one month is not more than a month overdue");
             rejected(() -> service.payCharges(List.of(boundary.getId()),1,PaymentMethod.CASH,today.plusDays(1)));
             check(service.findCharges(1).size()==5,"Charge history retains paid cancelled zero and pending obligations");
+            db.execute("INSERT INTO grados (id_grado,nombre_grado,nivel_numerico) VALUES (11,'Décimo',10)");
+            db.execute("INSERT INTO matriculas (id_estudiante,id_grado,anio_academico,fecha_matricula)"
+                    + " VALUES (1,11," + year + ",'" + today + "')");
+            LocalDate historical = today.minusDays(1);
+            db.execute("UPDATE cargos_estudiante SET fecha_creacion='" + historical
+                    + "' WHERE id_cargo=" + firstId);
+            StudentCharge unassigned = charge(2,pensionId,2,today.minusMonths(2));
+            int unassignedId = service.createCharge(unassigned);
+            Path currentReport = service.exportOverduePortfolio(today);
+            Path historicalReport = null;
+            try {
+                historicalReport = service.exportOverduePortfolio(historical);
+                String currentText = Files.readString(currentReport);
+                String historicalText = Files.readString(historicalReport);
+                check(currentText.contains("Sin matrícula para el año del cargo")
+                        && currentText.contains("Cargo " + unassignedId + " |")
+                        && currentText.contains("Total general (COP): 350000.00")
+                        && !currentText.contains("Cargo " + firstId + " |"),
+                        "Current portfolio excludes the settled, cancelled, zero and boundary charges");
+                check(historicalText.contains("Grado: Décimo")
+                        && historicalText.contains("Cargo " + firstId + " |")
+                        && historicalText.contains("Subtotal del grado: 315000.00")
+                        && historicalText.contains("Total general (COP): 315000.00")
+                        && !historicalText.contains("Cargo " + unassignedId + " |"),
+                        "Historical portfolio includes the charge paid after cutoff and excludes later creation");
+            } finally {
+                Files.deleteIfExists(currentReport);
+                if (historicalReport != null) {
+                    Files.deleteIfExists(historicalReport);
+                }
+            }
         }
         System.out.println("Passed "+checks+" console finance checks using temporary MySQL tables.");
     }

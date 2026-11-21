@@ -4,10 +4,12 @@ import dao.*;
 import dao.impl.*;
 import java.math.*;
 import java.sql.Connection;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Supplier;
 import model.*;
+import model.report.OverdueChargeRow;
 import model.enums.*;
 import util.*;
 import util.exception.*;
@@ -95,6 +97,14 @@ public class FinanceService {
     public List<StudentCharge> findOverdueCharges(LocalDate asOf) {
         require(asOf!=null,"La fecha de corte es obligatoria.");return transactions.execute(c -> finance.findOverdueCharges(asOf.minusMonths(1),c));
     }
+    public Path exportOverduePortfolio(LocalDate cutoff) {
+        require(cutoff != null && !cutoff.isAfter(LocalDate.now()),
+                "La fecha de corte es obligatoria y no puede ser futura.");
+        List<OverdueChargeRow> charges = transactions.execute(
+                c -> finance.findOverduePortfolio(cutoff, cutoff.minusMonths(1), c));
+        return OverduePortfolioTxt.write(Path.of("reportes"), cutoff, charges);
+    }
+
     private List<ChargeQuote> quote(List<Integer> chargeIds,Integer guardianId,Connection c) {
         require(chargeIds!=null && !chargeIds.isEmpty(),"Seleccione al menos un cargo.");require(chargeIds.size()<=100,"Puede pagar hasta 100 cargos por operacion.");id(guardianId);
         for(Integer id:chargeIds) ServiceValidation.id(id);

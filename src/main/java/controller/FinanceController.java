@@ -1,6 +1,7 @@
 package controller;
 
 import java.util.*;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import model.*;
 import model.enums.PaymentMethod;
@@ -33,6 +34,10 @@ public class FinanceController {
     public List<StudentCharge> findCharges(Integer studentId) { return service.findCharges(studentId); }
 
     public List<StudentCharge> findOverdueCharges(LocalDate date) { return service.findOverdueCharges(date); }
+
+    public Path exportOverduePortfolio(LocalDate cutoff) {
+        return service.exportOverduePortfolio(cutoff);
+    }
 
     public List<ChargeQuote> quoteCharges(List<Integer> ids,Integer guardianId) { return service.quoteCharges(ids,guardianId); }
 

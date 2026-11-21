@@ -38,7 +38,7 @@ public class FinanceViewFlowTest {
         FinanceView view=new FinanceView(finance,students,guardians);
         String date=LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/uuuu"));
         String input=switch(scenario) {
-            case "navigation" -> "5\n1\n5\n2\n4\n3\n5\n4\n4\n5\n8\n";
+            case "navigation" -> "5\n1\n5\n2\n4\n3\n5\n4\n4\n6\n8\n";
             case "concept" -> "1\n1\nMAT\nMatricula\n\n350000\n0\nno\nsi\nsi\n\n5\n5\n";
             case "cancel-edit" -> "1\n4\n1\nChanged\ncancelar\n5\n5\n";
             case "price" -> "2\n1\n1\n1\n315000\nHermanos\n01/01/2026\nsi\n31/12/2026\nsi\n\n4\n5\n";
